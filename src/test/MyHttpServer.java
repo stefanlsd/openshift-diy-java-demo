@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.Date;
@@ -22,7 +23,10 @@ import java.util.Properties;
  * @version $Revision:$
  */
 public class MyHttpServer {
-    private static HttpServer server;
+    private static MyHttpServer server;
+
+    private HttpServer httpServer;
+    private PortScan portScan;
 
     static class HtmlHandler implements HttpHandler {
         private File root;
@@ -32,16 +36,33 @@ public class MyHttpServer {
         public void handle(HttpExchange he) throws IOException {
             System.out.printf("Begin ------ %s\n", new Date());
             try {
-                String action = writeHeaders(he);
+                Properties queryParams = writeHeaders(he);
+                System.out.printf("QueryParams: %s\n", queryParams);
+                String action = queryParams.getProperty("action");
                 String file = getRequestFile(he.getRequestURI());
                 String rootPath = root.getAbsolutePath();
-                if(action != null && action.equalsIgnoreCase("stop")) {
-                    he.sendResponseHeaders(HttpURLConnection.HTTP_ACCEPTED, -1);
-                    he.close();
-                    System.out.print("Stopping server...");
-                    server.stop(1);
-                    System.out.println("done");
-                    System.out.flush();
+                if(action != null) {
+                    if(action.equalsIgnoreCase("stop")) {
+                        he.sendResponseHeaders(HttpURLConnection.HTTP_ACCEPTED, -1);
+                        he.close();
+                        System.out.print("Stopping server...");
+                        server.stop(1);
+                        System.out.println("done");
+                        System.out.flush();
+                    } else if(action.equalsIgnoreCase("portscan")) {
+                        String portsStr = queryParams.getProperty("ports");
+                        int[] ports = PortScan.DEFAULT_PORTS;
+                        if(portsStr != null) {
+                            String[] tmp = portsStr.split("[,]");
+                            ports = new int[tmp.length];
+                            for(int n = 0; n < tmp.length; n ++) {
+                                ports[n] = Integer.decode(tmp[n]);
+                            }
+                        }
+                        he.sendResponseHeaders(HttpURLConnection.HTTP_OK, 0);
+                        server.doScan(ports, he);
+                        he.close();
+                    }
                 } else {
                     System.out.printf("Reading file: %s%s\n", rootPath, file);
                     writeFile(new File(root, file), he);
@@ -55,7 +76,7 @@ public class MyHttpServer {
                 System.out.printf("End ------ %s\n", new Date());
             }
         }
-        String writeHeaders(HttpExchange he) {
+        Properties writeHeaders(HttpExchange he) {
             String method = he.getRequestMethod();
             URI requestURI = he.getRequestURI();
             String query = requestURI.getQuery();
@@ -86,7 +107,7 @@ public class MyHttpServer {
             for(String key : headers.keySet()) {
                 System.out.printf("Header(%s): %s\n", key, headers.getFirst(key));
             }
-            return action;
+            return queryParams;
          }
         String getRequestFile(URI requestURI) {
             String file = requestURI.getPath();
@@ -122,6 +143,28 @@ public class MyHttpServer {
         }
     }
 
+    MyHttpServer(InetAddress isa, int port, String repo) throws Exception {
+        portScan = new PortScan(isa);
+
+        httpServer = HttpServer.create(new InetSocketAddress(isa, port), 10);
+        File root = new File(repo+"/html");
+        if(root.exists() == false)
+            throw new FileNotFoundException(root.getAbsolutePath());
+        System.out.printf("Starting HttpServer for root context:%s\n", root.getCanonicalPath());
+        HtmlHandler handler = new HtmlHandler(root);
+        httpServer.createContext("/", handler);
+        httpServer.setExecutor(null); // creates a default executor
+    }
+    void run() {
+        httpServer.start();
+    }
+    void stop(int x) {
+        httpServer.stop(x);
+    }
+    void doScan(int[] ports, HttpExchange he) {
+        portScan.doScan(ports, he);
+    }
+
     public static void main(String[] args) throws Exception {
         // Get various openshift environment variables
         String repo = System.getenv("OPENSHIFT_REPO_DIR");
@@ -137,14 +180,8 @@ public class MyHttpServer {
             ports = "8080";
         }
         int port = Integer.decode(ports);
-        server = HttpServer.create(new InetSocketAddress(ip, port), 10);
-        File root = new File(repo+"/html");
-        if(root.exists() == false)
-            throw new FileNotFoundException(root.getAbsolutePath());
-        System.out.printf("Starting HttpServer for root context:%s\n", root.getCanonicalPath());
-        HtmlHandler handler = new HtmlHandler(root);
-        server.createContext("/", handler);
-        server.setExecutor(null); // creates a default executor
-        server.start();
+        InetAddress isa = InetAddress.getByName(ip);
+        server = new MyHttpServer(isa, port, repo);
+        server.run();
     }
 }
