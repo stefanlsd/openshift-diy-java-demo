@@ -4,5 +4,5 @@
 # $OPENSHIFT_INTERNAL_IP:8080
 
 cd $OPENSHIFT_REPO_DIR
-nohup java -cp bin test.MyHttpServer >${OPENSHIFT_LOG_DIR}/MyHttpServer.log 2>&1 &
+nohup java -cp bin test.MyHttpServer >${OPENSHIFT_DIY_LOG_DIR}/MyHttpServer.log 2>&1 &
 

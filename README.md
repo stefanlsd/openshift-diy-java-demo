@@ -146,7 +146,7 @@ For this application, all that has been customized are the start/stop scripts. T
 # $OPENSHIFT_INTERNAL_IP:8080
 
 cd $OPENSHIFT_REPO_DIR
-nohup java -cp bin test.MyHttpServer >${OPENSHIFT_LOG_DIR}/MyHttpServer.log 2>&1 &
+nohup java -cp bin test.MyHttpServer >${OPENSHIFT_DIY_LOG_DIR}/MyHttpServer.log 2>&1 &
 
 [24](ironmaiden:diy) > cat .openshift/action_hooks/stop
 #!/bin/bash
