@@ -7,7 +7,7 @@ javac -g -d bin src/test/MyHttpServer.java
 Assuming you have an OpenShift account and domain setup, and client tools installed (if you don't, see https://openshift.redhat.com/app/getting_started), you create your DIY application using:
 
 ```bash
-[8](ironmaiden:tmp) > rhc app create -t diy-0.1 -a diy -p *
+[8](ironmaiden:tmp) > rhc app create diy diy-0.1
 Creating application: diy
 Now your new domain name is being propagated worldwide (this might take a minute)...
     retry # 5 - Waiting for DNS: diy-jbossdev.rhcloud.com
