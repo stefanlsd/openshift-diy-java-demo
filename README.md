@@ -4,7 +4,7 @@ DIY application repo. The application consists of a single test.MyHttpServer mai
 javac -g -d bin src/test/MyHttpServer.java
 
 # First, create the DIY java application
-Assuming you have an OpenShift account and domain setup, and client tools installed (if you don't, see https://openshift.redhat.com/app/getting_started), you create your DIY application using:
+Assuming you have an OpenShift account and domain setup, and client tools installed (if you don't, see https://www.openshift.com/get-started), you create your DIY application using:
 
 ```bash
 [8](ironmaiden:tmp) > rhc app create diy diy-0.1
