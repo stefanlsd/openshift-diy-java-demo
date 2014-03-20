@@ -15,7 +15,7 @@ Confirming application 'diy' is available:  Success!
 
 diy published:  http://diy-jbossdev.rhcloud.com/
 git url:  ssh://0baa01674cac4a96a8ef8a1096867680@diy-jbossdev.rhcloud.com/~/git/diy.git/
-Disclaimer: This is an experimental cartridge that provides a way to try unsupported languages, frameworks, and middleware on Openshift.
+Disclaimer: This is an experimental cartridge that provides a way to try unsupported languages, frameworks, and middleware on OpenShift.
 ```
 
 # Second, pull replace your app repository with the java-demo contents
