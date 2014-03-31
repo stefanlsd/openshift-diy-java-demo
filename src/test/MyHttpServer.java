@@ -166,7 +166,7 @@ public class MyHttpServer {
     }
 
     public static void main(String[] args) throws Exception {
-        // Get various openshift environment variables
+        // Get various OpenShift environment variables
         String repo = System.getenv("OPENSHIFT_REPO_DIR");
         if(repo == null) {
             repo = ".";
