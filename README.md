@@ -20,7 +20,7 @@ Disclaimer: This is an experimental cartridge that provides a way to try unsuppo
 
 # Second, pull replace your app repository with the java-demo contents
 ```bash
-[11](ironmaiden:diy) > git remote add upstream git@github.com:openshift/openshift-diy-java-demo.git
+[11](ironmaiden:diy) > git remote add upstream git@github.com:openshift-quickstart/openshift-diy-java-demo.git
 [12](ironmaiden:diy) > git pull -s recursive -X theirs upstream master
 warning: no common commits
 remote: Counting objects: 19, done.
